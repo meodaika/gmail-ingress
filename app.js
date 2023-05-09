@@ -2,6 +2,45 @@ const express = require("express")
 const app = express()
 const port = process.env.PORT || 3001
 
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
+app.use((req, res, next) => {
+  const logEntry = {
+    timestamp: new Date(),
+    method: req.method,
+    path: req.path,
+    query: req.query,
+    headers: req.headers,
+    body: req.body,
+  }
+
+  // Convert the log entry to a JSON string
+  const logString = JSON.stringify(logEntry) + "\n"
+
+  // Write the log entry to a file
+  fs.appendFile("logs.json", logString, (err) => {
+    if (err) {
+      console.error("Error writing log entry to file:", err)
+    }
+  })
+
+  next()
+})
+
+app.get("/log", (req, res) => {
+  fs.readFile("logs.json", "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading file:", err)
+      res.status(500).send("Error reading file")
+      return
+    }
+
+    const jsonData = JSON.parse(data)
+    res.json(jsonData)
+  })
+})
+
 app.get("/", (req, res) => res.type("html").json({ load: true }))
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))

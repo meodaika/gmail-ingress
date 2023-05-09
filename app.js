@@ -37,8 +37,8 @@ app.get("/log", (req, res) => {
       return
     }
 
-    const jsonData = JSON.parse(data)
-    res.json(jsonData)
+    // const jsonData = JSON.parse(data)
+    res.json(data)
   })
 })
 
